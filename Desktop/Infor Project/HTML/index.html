@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resep Masakan Nusantara</title>
+    <style>
+        /* CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f9f5f0;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #e74c3c;
+            color: white;
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            background-color: #c0392b;
+            padding: 1rem;
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin: 0 1rem;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav ul li a:hover {
+            background-color: #a5281b;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .search-container {
+            display: flex;
+            margin-bottom: 2rem;
+        }
+
+        .search-container input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 1rem;
+        }
+
+        .search-container button {
+            padding: 0.8rem 1.5rem;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .search-container button:hover {
+            background-color: #c0392b;
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .recipe-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .recipe-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .recipe-content {
+            padding: 1.5rem;
+        }
+
+        .recipe-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #e74c3c;
+        }
+
+        .recipe-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .recipe-desc {
+            margin-bottom: 1rem;
+            color: #555;
+        }
+
+        .view-recipe {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .view-recipe:hover {
+            background-color: #c0392b;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .modal-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .ingredients-list, .steps-list {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav ul li {
+                margin: 0.5rem 0;
+            }
+
+            .recipe-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Resep Masakan Nusantara</h1>
+        <p>Temukan resep masakan tradisional Indonesia yang lezat dan mudah dibuat</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#">Beranda</a></li>
+            <li><a href="#">Resep Populer</a></li>
+            <li><a href="#">Kategori</a></li>
+            <li><a href="#">Tentang Kami</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Cari resep...">
+            <button id="search-btn">Cari</button>
+        </div>
+
+        <div class="recipe-grid" id="recipe-container">
+            <!-- Resep akan dimuat di sini melalui JavaScript -->
+        </div>
+    </div>
+
+    <!-- Modal untuk menampilkan detail resep -->
+    <div id="recipe-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-content">
+                <!-- Konten modal akan dimuat di sini -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Resep Masakan Nusantara. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Data resep
+        const recipes = [
+            {
+                id: 1,
+                title: "Nasi Goreng Spesial",
+                image: "https://th.bing.com/th/id/OIP.4QoPDFdnzty0hb-Mx09nNgHaEK?w=308&h=180&c=7&r=0&o=5&dpr=1.5&pid=1.7https://tse1.mm.bing.net/th/id/OIP.b881ovKeRrqYdJ8vkCdqBgAAAA?rs=1&pid=ImgDetMain",
+                time: "30 menit",
+                difficulty: "Mudah",
+                servings: "2 porsi",
+                description: "Nasi goreng dengan bumbu khas Indonesia yang lezat dan gurih.",
+                ingredients: [
+                    "2 piring nasi putih",
+                    "2 siung bawang putih, cincang halus",
+                    "3 siung bawang merah, iris tipis",
+                    "1 buah cabai merah, iris serong",
+                    "1 butir telur",
+                    "50 gram ayam suwir",
+                    "1 sdm kecap manis",
+                    "1 sdt kecap asin",
+                    "1/2 sdt garam",
+                    "1/4 sdt merica",
+                    "1 sdm minyak goreng",
+                    "Pelengkap: acar, kerupuk, timun"
+                ],
+                steps: [
+                    "Panaskan minyak dalam wajan, tumis bawang putih dan bawang merah hingga harum.",
+                    "Masukkan cabai merah, aduk sebentar.",
+                    "Kocok lepas telur, buat orak-arik di pinggir wajan.",
+                    "Masukkan ayam suwir, aduk rata.",
+                    "Tambahkan nasi putih, aduk hingga tercampur rata dengan bumbu.",
+                    "Bumbui dengan kecap manis, kecap asin, garam, dan merica. Aduk rata.",
+                    "Masak hingga nasi goreng panas dan bumbu meresap.",
+                    "Sajikan dengan pelengkap acar, kerupuk, dan timun."
+                ]
+            },
+            {
+                id: 2,
+                title: "Soto Ayam Lamongan",
+                image: "https://source.unsplashhttps://img-global.cpcdn.com/recipes/5143fe859a22c5ec/680x482cq70/soto-ayam-lamongan-foto-resep-utama.jpg.com/random/600x400/?soup",
+                time: "60 menit",
+                difficulty: "Sedang",
+                servings: "4 porsi",
+                description: "Soto ayam dengan kuah kuning yang gurih dan koya sebagai pelengkap.",
+                ingredients: [
+                    "1 ekor ayam, potong 4 bagian",
+                    "2 liter air",
+                    "2 batang serai, memarkan",
+                    "3 lembar daun jeruk",
+                    "2 lembar daun salam",
+                    "1 ruas lengkuas, memarkan",
+                    "1 sdt garam",
+                    "1/2 sdt gula pasir",
+                    "Bumbu halus:",
+                    "8 siung bawang merah",
+                    "4 siung bawang putih",
+                    "3 butir kemiri, sangrai",
+                    "1 ruas kunyit, bakar",
+                    "1 ruas jahe",
+                    "1 sdt ketumbar",
+                    "Pelengkap:",
+                    "100 gram soun, rendam air panas",
+                    "2 butir telur rebus, belah 2",
+                    "100 gram kol, iris halus",
+                    "2 batang daun bawang, iris halus",
+                    "2 batang seledri, iris halus",
+                    "Bawang goreng",
+                    "Koya (campuran kerupuk udang dan bawang putih goreng yang dihaluskan)",
+                    "Jeruk nipis"
+                ],
+                steps: [
+                    "Rebus ayam dengan air hingga mendidih, buang busanya.",
+                    "Tumis bumbu halus bersama serai, daun jeruk, daun salam, dan lengkuas hingga harum.",
+                    "Masukkan tumisan bumbu ke dalam rebusan ayam, tambahkan garam dan gula. Masak hingga ayam empuk.",
+                    "Angkat ayam, tiriskan, lalu goreng sebentar. Suwir-suwir daging ayam.",
+                    "Saring kuah soto.",
+                    "Penyajian: tata soun, kol, suwiran ayam, dan telur dalam mangkuk. Siram dengan kuah soto panas.",
+                    "Taburi dengan daun bawang, seledri, bawang goreng, dan koya. Beri perasan jeruk nipis."
+                ]
+            },
+            {
+                id: 3,
+                title: "Rendang Daging",
+                image: "https://source.unsplash.com/rhttps://www.bing.com/images/search?view=detailV2&ccid=LwOA3e3w&id=67986AC8E54FCDFDB1AE60D0C878FE91093FD990&thid=OIP.LwOA3e3wHaLSdUtvdA8L1QHaE5&mediaurl=https%3a%2f%2fd1vbn70lmn1nqe.cloudfront.net%2fprod%2fwp-content%2fuploads%2f2023%2f07%2f13044906%2fresep-rendang-daging-khas-padang-yang-sehat-dan-menggugah-selera.jpg&exph=465&expw=702&q=rendang+padang&simid=608001554405529437&FORM=IRPRST&ck=10E3305DC5EB5A3A2C215D60AD8E468E&selectedIndex=13&itb=0andom/600x400/?beef",
+                time: "180 menit",
+                difficulty: "Sulit",
+                servings: "6 porsi",
+                description: "Rendang daging dengan bumbu rempah yang kaya dan tekstur empuk.",
+                ingredients: [
+                    "1 kg daging sapi, potong sesuai selera",
+                    "2 liter santan kental dari 3 butir kelapa",
+                    "3 lembar daun jeruk",
+                    "2 lembar daun salam",
+                    "2 batang serai, memarkan",
+                    "1 ruas lengkuas, memarkan",
+                    "1 sdt garam",
+                    "1 sdt gula merah",
+                    "Bumbu halus:",
+                    "15 siung bawang merah",
+                    "8 siung bawang putih",
+                    "10 buah cabai merah keriting",
+                    "5 buah cabai rawit merah (optional)",
+                    "5 butir kemiri, sangrai",
+                    "1 ruas kunyit",
+                    "1 ruas jahe",
+                    "1 sdt ketumbar",
+                    "1/2 sdt jintan",
+                    "1/2 sdt merica"
+                ],
+                steps: [
+                    "Tumis bumbu halus bersama daun jeruk, daun salam, serai, dan lengkuas hingga harum dan matang.",
+                    "Masukkan potongan daging, aduk hingga berubah warna.",
+                    "Tuangkan santan sedikit demi sedikit sambil diaduk agar tidak pecah.",
+                    "Tambahkan garam dan gula merah, aduk rata.",
+                    "Masak dengan api kecil sambil sesekali diaduk hingga santan menyusut dan berminyak.",
+                    "Teruskan memasak hingga daging empuk dan bumbu meresap, serta kuah mengental dan berwarna kecokelatan.",
+                    "Koreksi rasa, angkat dan sajikan."
+                ]
+            },
+            {
+                id: 4,
+                title: "Gado-Gado",
+                image: "https://source.unsplash.cohttps://www.bing.com/images/search?view=detailV2&ccid=ZUde0p3Q&id=65D3B2C096296B9BDB3D33CC64AB01C6CC92138B&thid=OIP.ZUde0p3Qom9JlrbrmPJj-gHaE8&mediaurl=https%3a%2f%2fthegorbalsla.com%2fwp-content%2fuploads%2f2019%2f03%2fresep-gado-gado-tanpa-santan.jpg&exph=800&expw=1200&q=gado+gado&simid=607998582292563233&FORM=IRPRST&ck=D9B7AC85254A50EAC2FE73523BFA864D&selectedIndex=32&itb=0m/random/600x400/?salad",
+                time: "45 menit",
+                difficulty: "Mudah",
+                servings: "4 porsi",
+                description: "Salad sayuran khas Indonesia dengan bumbu kacang yang lezat.",
+                ingredients: [
+                    "100 gram kangkung, siangi",
+                    "100 gram tauge",
+                    "100 gram kol, iris tipis",
+                    "100 gram buncis, potong 2 cm",
+                    "2 buah kentang, rebus, kupas, potong dadu",
+                    "2 buah telur rebus, belah 2",
+                    "100 gram tahu, potong dadu, goreng",
+                    "100 gram tempe, potong dadu, goreng",
+                    "Kerupuk udang untuk pelengkap",
+                    "Bumbu kacang:",
+                    "200 gram kacang tanah, goreng",
+                    "3 siung bawang putih, goreng",
+                    "5 buah cabai merah keriting",
+                    "2 sdm gula merah",
+                    "1 sdt garam",
+                    "1 sdt asam jawa, larutkan dengan 2 sdm air",
+                    "400 ml air",
+                    "2 sdm kecap manis"
+                ],
+                steps: [
+                    "Rebus semua sayuran secara terpisah hingga matang tapi masih renyah. Tiriskan.",
+                    "Untuk bumbu kacang: haluskan kacang tanah, bawang putih, dan cabai merah.",
+                    "Masukkan bumbu halus ke dalam panci, tambahkan gula merah, garam, air asam, air, dan kecap manis.",
+                    "Masak dengan api kecil sambil diaduk hingga mengental. Koreksi rasa.",
+                    "Penyajian: tata sayuran, kentang, tahu, tempe, dan telur di piring.",
+                    "Siram dengan bumbu kacang dan taburi dengan kerupuk udang."
+                ]
+            },
+            {
+                id: 5,
+                title: "Sate Ayam Madura",
+                image: "https://www.bing.com/images/search?view=detailV2&ccid=oQIK2Wfl&id=E35B7C3FF7D7332CAB167D38EEF23D4621E47B1C&thid=OIP.oQIK2WflG42-3XJBPxKiJQHaE8&mediaurl=https%3a%2f%2fth.bing.com%2fth%2fid%2fR.a1020ad967e51b8dbedd72413f12a225%3frik%3dHHvkIUY98u44fQ%26riu%3dhttp%253a%252f%252f4.bp.blogspot.com%252f_CLrG3q6_ZQ8%252fTPJtPzzyHqI%252fAAAAAAAAABM%252fhUXp1RRiS24%252fs1600%252fSateAyamMadura.jpg%26ehk%3dCITcd7GhteZYAT4kzKfU0ABrrx9ExzOkXjI%252bwFYBfFE%253d%26risl%3d%26pid%3dImgRaw%26r%3d0&exph=407&expw=610&q=sate+ayam++madura&simid=608028642767735016&FORM=IRPRST&ck=4F6D86BE4B54659EDA934A3779D66346&selectedIndex=84&itb=0",
+                time: "90 menit",
+                difficulty: "Sedang",
+                servings: "4 porsi",
+                description: "Sate ayam dengan bumbu kacang khas Madura yang gurih.",
+                ingredients: [
+                    "500 gram daging ayam fillet, potong dadu",
+                    "Bambu atau tusuk sate",
+                    "Bumbu marinasi:",
+                    "3 siung bawang putih, haluskan",
+                    "1 sdt ketumbar bubuk",
+                    "1/2 sdt jinten bubuk",
+                    "1 sdt garam",
+                    "1 sdm kecap manis",
+                    "1 sdm minyak goreng",
+                    "Bumbu kacang:",
+                    "200 gram kacang tanah, goreng",
+                    "3 siung bawang putih, goreng",
+                    "5 buah cabai merah keriting",
+                    "2 sdm gula merah",
+                    "1 sdt garam",
+                    "1 sdt asam jawa, larutkan dengan 2 sdm air",
+                    "400 ml air",
+                    "2 sdm kecap manis",
+                    "Pelengkap:",
+                    "Lontong atau ketupat",
+                    "Irisan bawang merah",
+                    "Cabai rawit",
+                    "Kecap manis"
+                ],
+                steps: [
+                    "Lumuri potongan ayam dengan bumbu marinasi, diamkan minimal 30 menit.",
+                    "Tusuk potongan ayam ke tusuk sate, masing-masing 3-4 potong.",
+                    "Panggang sate di atas bara api atau grill pan sambil sesekali diolesi sisa bumbu marinasi hingga matang.",
+                    "Untuk bumbu kacang: haluskan kacang tanah, bawang putih, dan cabai merah.",
+                    "Masukkan bumbu halus ke dalam panci, tambahkan gula merah, garam, air asam, air, dan kecap manis.",
+                    "Masak dengan api kecil sambil diaduk hingga mengental. Koreksi rasa.",
+                    "Penyajian: tata sate di piring, siram dengan bumbu kacang atau sajikan terpisah.",
+                    "Sajikan dengan lontong, irisan bawang merah, cabai rawit, dan kecap manis."
+                ]
+            }
+        ];
+
+        // Fungsi untuk menampilkan resep
+        function displayRecipes(recipesToDisplay) {
+            const recipeContainer = document.getElementById('recipe-container');
+            recipeContainer.innerHTML = '';
+
+            recipesToDisplay.forEach(recipe => {
+                const recipeCard = document.createElement('div');
+                recipeCard.className = 'recipe-card';
+                recipeCard.innerHTML = `
+                    <img src="${recipe.image}" alt="${recipe.title}" class="recipe-img">
+                    <div class="recipe-content">
+                        <h3 class="recipe-title">${recipe.title}</h3>
+                        <div class="recipe-meta">
+                            <span>⏱️ ${recipe.time}</span>
+                            <span>🍽️ ${recipe.servings}</span>
+                            <span>⚡ ${recipe.difficulty}</span>
+                        </div>
+                        <p class="recipe-desc">${recipe.description}</p>
+                        <a href="#" class="view-recipe" data-id="${recipe.id}">Lihat Resep</a>
+                    </div>
+                `;
+                recipeContainer.appendChild(recipeCard);
+            });
+
+            // Tambahkan event listener untuk tombol "Lihat Resep"
+            document.querySelectorAll('.view-recipe').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const recipeId = parseInt(this.getAttribute('data-id'));
+                    showRecipeModal(recipeId);
+                });
+            });
+        }
+
+        // Fungsi untuk menampilkan modal resep
+        function showRecipeModal(recipeId) {
+            const recipe = recipes.find(r => r.id === recipeId);
+            if (!recipe) return;
+
+            const modal = document.getElementById('recipe-modal');
+            const modalContent = document.getElementById('modal-content');
+            
+            modalContent.innerHTML = `
+                <h2>${recipe.title}</h2>
+                <img src="${recipe.image}" alt="${recipe.title}" class="modal-img">
+                <div class="recipe-meta">
+                    <span>⏱️ ${recipe.time}</span>
+                    <span>🍽️ ${recipe.servings}</span>
+                    <span>⚡ ${recipe.difficulty}</span>
+                </div>
+                <h3>Bahan-bahan:</h3>
+                <ul class="ingredients-list">
+                    ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join('')}
+                </ul>
+                <h3>Cara Membuat:</h3>
+                <ol class="steps-list">
+                    ${recipe.steps.map(step => `<li>${step}</li>`).join('')}
+                </ol>
+            `;
+
+            modal.style.display = 'block';
+
+            // Tambahkan event listener untuk tombol close
+            document.querySelector('.close').addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+
+            // Tutup modal ketika klik di luar konten
+            window.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Fungsi untuk mencari resep
+        function searchRecipes(query) {
+            const lowerCaseQuery = query.toLowerCase();
+            return recipes.filter(recipe => 
+                recipe.title.toLowerCase().includes(lowerCaseQuery) ||
+                recipe.description.toLowerCase().includes(lowerCaseQuery) ||
+                recipe.ingredients.some(ing => ing.toLowerCase().includes(lowerCaseQuery))
+            );
+        }
+
+        // Event listener untuk tombol search
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const query = document.getElementById('search-input').value;
+            const results = searchRecipes(query);
+            displayRecipes(results);
+        });
+
+        // Event listener untuk enter di search input
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = document.getElementById('search-input').value;
+                const results = searchRecipes(query);
+                displayRecipes(results);
+            }
+        });
+
+        // Tampilkan semua resep saat pertama kali load
+        window.addEventListener('DOMContentLoaded', () => {
+            displayRecipes(recipes);
+        });
+    </script>
+</body>
+</html>
